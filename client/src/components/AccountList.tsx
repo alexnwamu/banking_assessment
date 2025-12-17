@@ -23,56 +23,62 @@
  * - Testing strategy
  */
 
-import { useState, useEffect } from "react";
-import { Account } from "../types";
+import { useQuery } from "@tanstack/react-query";
 import { getAccounts } from "../api";
-import styles from "./AccountList.module.css";
+import { AccountCard } from "./AccountCard";
+import { Loader2 } from "lucide-react";
 
 export function AccountList() {
-  // Basic state management - Consider using more robust state management for larger applications
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: accounts,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: getAccounts,
+  });
 
-  // Data fetching - Consider implementing retry logic, caching, and better error handling
-  useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const data = await getAccounts();
-        setAccounts(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
-    fetchAccounts();
-  }, []);
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/50 p-4">
+        <p className="text-sm text-red-600 dark:text-red-400">
+          Error loading accounts: {(error as Error).message}
+        </p>
+      </div>
+    );
+  }
 
-  // Basic loading and error states - Consider implementing skeleton loading and error boundaries
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (!accounts || accounts.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        No accounts found
+      </div>
+    );
+  }
 
-  // Basic render logic - Consider implementing:
-  // - Sorting and filtering
-  // - Pagination
-  // - Search functionality
-  // - More interactive features
-  // - Accessibility improvements
   return (
-    <div className={styles.container}>
-      <h2>Accounts</h2>
-      <div className={styles.grid}>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-foreground">Your Accounts</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage your accounts and transactions
+        </p>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {accounts.map((account) => (
-          <div key={account.id} className={styles.card}>
-            <h3>{account.accountHolder}</h3>
-            <p>Account Number: {account.accountNumber}</p>
-            <p>Type: {account.accountType}</p>
-            <p>Balance: ${account.balance.toFixed(2)}</p>
-          </div>
+          <AccountCard key={account.id} account={account} accounts={accounts} />
         ))}
       </div>
     </div>
   );
 }
+
+export default AccountList;
