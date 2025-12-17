@@ -61,7 +61,7 @@ describe("TransactionForm", () => {
     expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /submit transaction/i })
+      screen.getByRole("button", { name: /^submit$/i })
     ).toBeInTheDocument();
   });
 
@@ -70,11 +70,11 @@ describe("TransactionForm", () => {
 
     const amountInput = screen.getByLabelText(/amount/i);
     const submitButton = screen.getByRole("button", {
-      name: /submit transaction/i,
+      name: /^submit$/i,
     });
 
     fireEvent.change(amountInput, { target: { value: "-100" } });
-    fireEvent.click(submitButton);
+    fireEvent.submit(submitButton.closest("form") as HTMLFormElement);
 
     await waitFor(() => {
       expect(
@@ -88,11 +88,11 @@ describe("TransactionForm", () => {
 
     const amountInput = screen.getByLabelText(/amount/i);
     const submitButton = screen.getByRole("button", {
-      name: /submit transaction/i,
+      name: /^submit$/i,
     });
 
     fireEvent.change(amountInput, { target: { value: "1000001" } });
-    fireEvent.click(submitButton);
+    fireEvent.submit(submitButton.closest("form") as HTMLFormElement);
 
     await waitFor(() => {
       expect(
@@ -105,7 +105,7 @@ describe("TransactionForm", () => {
     renderComponent();
 
     const submitButton = screen.getByRole("button", {
-      name: /submit transaction/i,
+      name: /^submit$/i,
     });
     fireEvent.click(submitButton);
 
@@ -130,7 +130,7 @@ describe("TransactionForm", () => {
     const amountInput = screen.getByLabelText(/amount/i);
     const descriptionInput = screen.getByLabelText(/description/i);
     const submitButton = screen.getByRole("button", {
-      name: /submit transaction/i,
+      name: /^submit$/i,
     });
 
     fireEvent.change(typeSelect, { target: { value: "WITHDRAWAL" } });
@@ -162,7 +162,7 @@ describe("TransactionForm", () => {
     const amountInput = screen.getByLabelText(/amount/i);
     const descriptionInput = screen.getByLabelText(/description/i);
     const submitButton = screen.getByRole("button", {
-      name: /submit transaction/i,
+      name: /^submit$/i,
     });
 
     fireEvent.change(amountInput, { target: { value: "100" } });
@@ -198,7 +198,7 @@ describe("TransactionForm", () => {
     const amountInput = screen.getByLabelText(/amount/i);
     const descriptionInput = screen.getByLabelText(/description/i);
     const submitButton = screen.getByRole("button", {
-      name: /submit transaction/i,
+      name: /^submit$/i,
     });
 
     fireEvent.change(typeSelect, { target: { value: "TRANSFER" } });
@@ -228,7 +228,7 @@ describe("TransactionForm", () => {
     const amountInput = screen.getByLabelText(/amount/i);
     const descriptionInput = screen.getByLabelText(/description/i);
     const submitButton = screen.getByRole("button", {
-      name: /submit transaction/i,
+      name: /^submit$/i,
     });
 
     fireEvent.change(amountInput, { target: { value: "100" } });

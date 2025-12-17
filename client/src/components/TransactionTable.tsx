@@ -105,7 +105,11 @@ const TransactionTable = ({ accountId }: TransactionTableProps) => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-8">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        <Loader2
+          className="h-5 w-5 animate-spin text-muted-foreground"
+          aria-label="Loading transactions"
+          role="status"
+        />
       </div>
     );
   }
@@ -236,6 +240,7 @@ const TransactionTable = ({ accountId }: TransactionTableProps) => {
           </p>
           <div className="flex gap-1">
             <Button
+              aria-label="Previous page"
               onClick={() => setPage(page - 1)}
               disabled={page <= 1}
               size="sm"
@@ -245,6 +250,7 @@ const TransactionTable = ({ accountId }: TransactionTableProps) => {
               <ChevronLeft className="h-3 w-3" />
             </Button>
             <Button
+              aria-label="Next page"
               onClick={() => setPage(page + 1)}
               disabled={page >= data.totalPages}
               size="sm"

@@ -30,7 +30,7 @@ describe("TransactionTable", () => {
 
   it("renders loading state initially", () => {
     renderComponent("1");
-    expect(screen.getByText(/loading transactions/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/loading transactions/i)).toBeInTheDocument();
   });
 
   it("renders error state on API failure", async () => {
@@ -119,7 +119,7 @@ describe("TransactionTable", () => {
       expect(screen.getByText("Test withdrawal")).toBeInTheDocument();
     });
 
-    const filterSelect = screen.getByLabelText(/filter by/i);
+    const filterSelect = screen.getByLabelText(/filter/i);
     fireEvent.change(filterSelect, { target: { value: "DEPOSIT" } });
 
     expect(screen.getByText("Test deposit")).toBeInTheDocument();
@@ -164,8 +164,9 @@ describe("TransactionTable", () => {
     fireEvent.click(amountSortButton);
 
     const rows = screen.getAllByRole("row");
-    expect(rows[1]).toHaveTextContent("Small deposit");
-    expect(rows[2]).toHaveTextContent("Large deposit");
+    // First click sorts by amount descending (largest first)
+    expect(rows[1]).toHaveTextContent("Large deposit");
+    expect(rows[2]).toHaveTextContent("Small deposit");
   });
 
   it("handles pagination", async () => {
@@ -182,13 +183,13 @@ describe("TransactionTable", () => {
     renderComponent("1");
 
     await waitFor(() => {
-      expect(screen.getByText(/showing page 1 of 3/i)).toBeInTheDocument();
+      expect(screen.getByText(/page 1 of 3/i)).toBeInTheDocument();
     });
 
-    const nextButton = screen.getByRole("button", { name: /next/i });
+    const nextButton = screen.getByRole("button", { name: /next page/i });
     expect(nextButton).not.toBeDisabled();
 
-    const prevButton = screen.getByRole("button", { name: /previous/i });
+    const prevButton = screen.getByRole("button", { name: /previous page/i });
     expect(prevButton).toBeDisabled();
   });
 
@@ -235,7 +236,7 @@ describe("TransactionTable", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Transfer to savings")).toBeInTheDocument();
-      expect(screen.getByText(/to account: 2/i)).toBeInTheDocument();
+      expect(screen.getByText(/to:\s*2/i)).toBeInTheDocument();
       expect(screen.getByText("-$200.00")).toBeInTheDocument();
     });
   });

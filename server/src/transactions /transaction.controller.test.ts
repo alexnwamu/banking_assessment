@@ -1,25 +1,26 @@
 import { Request, Response } from "express";
 import { createTransaction, getTransactions } from "./transaction.controller";
 import { db } from "../db";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 // Mock the db module
-jest.mock("../db", () => ({
+vi.mock("../db", () => ({
   db: {
-    run: jest.fn(),
-    get: jest.fn(),
-    all: jest.fn(),
+    run: vi.fn(),
+    get: vi.fn(),
+    all: vi.fn(),
   },
 }));
 
 describe("Transaction Controller", () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
-  let jsonMock: jest.Mock;
-  let statusMock: jest.Mock;
+  let jsonMock: Mock;
+  let statusMock: Mock;
 
   beforeEach(() => {
-    jsonMock = jest.fn();
-    statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+    jsonMock = vi.fn();
+    statusMock = vi.fn().mockReturnValue({ json: jsonMock });
 
     mockRequest = {
       params: { id: "1" },
@@ -32,7 +33,7 @@ describe("Transaction Controller", () => {
       json: jsonMock,
     };
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("createTransaction", () => {
@@ -43,7 +44,7 @@ describe("Transaction Controller", () => {
         description: "Test deposit",
       };
 
-      (db.run as jest.Mock)
+      (db.run as Mock)
         .mockImplementationOnce((query, callback) => callback(null)) // BEGIN TRANSACTION
         .mockImplementationOnce((query, params, callback) => callback(null)) // UPDATE account
         .mockImplementationOnce((query, params, callback) => {
@@ -51,11 +52,9 @@ describe("Transaction Controller", () => {
         }) // INSERT transaction
         .mockImplementationOnce((query, callback) => callback(null)); // COMMIT
 
-      (db.get as jest.Mock).mockImplementationOnce(
-        (query, params, callback) => {
-          callback(null, { id: "1", balance: 1000 });
-        }
-      );
+      (db.get as Mock).mockImplementationOnce((query, params, callback) => {
+        callback(null, { id: "1", balance: 1000 });
+      });
 
       await createTransaction(mockRequest as Request, mockResponse as Response);
 
@@ -79,7 +78,7 @@ describe("Transaction Controller", () => {
         description: "Test withdrawal",
       };
 
-      (db.run as jest.Mock)
+      (db.run as Mock)
         .mockImplementationOnce((query, callback) => callback(null)) // BEGIN TRANSACTION
         .mockImplementationOnce((query, params, callback) => callback(null)) // UPDATE account
         .mockImplementationOnce((query, params, callback) => {
@@ -87,11 +86,9 @@ describe("Transaction Controller", () => {
         }) // INSERT transaction
         .mockImplementationOnce((query, callback) => callback(null)); // COMMIT
 
-      (db.get as jest.Mock).mockImplementationOnce(
-        (query, params, callback) => {
-          callback(null, { id: "1", balance: 1000 });
-        }
-      );
+      (db.get as Mock).mockImplementationOnce((query, params, callback) => {
+        callback(null, { id: "1", balance: 1000 });
+      });
 
       await createTransaction(mockRequest as Request, mockResponse as Response);
 
@@ -116,7 +113,7 @@ describe("Transaction Controller", () => {
         toAccountId: "2",
       };
 
-      (db.run as jest.Mock)
+      (db.run as Mock)
         .mockImplementationOnce((query, callback) => callback(null)) // BEGIN TRANSACTION
         .mockImplementationOnce((query, params, callback) => callback(null)) // UPDATE source account
         .mockImplementationOnce((query, params, callback) => callback(null)) // UPDATE target account
@@ -125,7 +122,7 @@ describe("Transaction Controller", () => {
         }) // INSERT transaction
         .mockImplementationOnce((query, callback) => callback(null)); // COMMIT
 
-      (db.get as jest.Mock)
+      (db.get as Mock)
         .mockImplementationOnce((query, params, callback) => {
           callback(null, { id: "1", balance: 1000 });
         }) // Source account
@@ -232,15 +229,13 @@ describe("Transaction Controller", () => {
         description: "Test",
       };
 
-      (db.run as jest.Mock)
+      (db.run as Mock)
         .mockImplementationOnce((query, callback) => callback(null)) // BEGIN TRANSACTION
         .mockImplementationOnce((query, callback) => callback(null)); // ROLLBACK
 
-      (db.get as jest.Mock).mockImplementationOnce(
-        (query, params, callback) => {
-          callback(null, null);
-        }
-      );
+      (db.get as Mock).mockImplementationOnce((query, params, callback) => {
+        callback(null, null);
+      });
 
       await createTransaction(mockRequest as Request, mockResponse as Response);
 
@@ -257,15 +252,13 @@ describe("Transaction Controller", () => {
         description: "Test withdrawal",
       };
 
-      (db.run as jest.Mock)
+      (db.run as Mock)
         .mockImplementationOnce((query, callback) => callback(null)) // BEGIN TRANSACTION
         .mockImplementationOnce((query, callback) => callback(null)); // ROLLBACK
 
-      (db.get as jest.Mock).mockImplementationOnce(
-        (query, params, callback) => {
-          callback(null, { id: "1", balance: 1000 });
-        }
-      );
+      (db.get as Mock).mockImplementationOnce((query, params, callback) => {
+        callback(null, { id: "1", balance: 1000 });
+      });
 
       await createTransaction(mockRequest as Request, mockResponse as Response);
 
@@ -299,7 +292,7 @@ describe("Transaction Controller", () => {
         },
       ];
 
-      (db.get as jest.Mock)
+      (db.get as Mock)
         .mockImplementationOnce((query, params, callback) => {
           callback(null, { id: "1", balance: 1000 });
         }) // Account exists
@@ -307,11 +300,9 @@ describe("Transaction Controller", () => {
           callback(null, { count: 2 });
         }); // Total count
 
-      (db.all as jest.Mock).mockImplementationOnce(
-        (query, params, callback) => {
-          callback(null, mockTransactions);
-        }
-      );
+      (db.all as Mock).mockImplementationOnce((query, params, callback) => {
+        callback(null, mockTransactions);
+      });
 
       await getTransactions(mockRequest as Request, mockResponse as Response);
 
@@ -327,7 +318,7 @@ describe("Transaction Controller", () => {
     it("should handle pagination", async () => {
       mockRequest.query = { page: "2", limit: "5" };
 
-      (db.get as jest.Mock)
+      (db.get as Mock)
         .mockImplementationOnce((query, params, callback) => {
           callback(null, { id: "1", balance: 1000 });
         })
@@ -335,11 +326,9 @@ describe("Transaction Controller", () => {
           callback(null, { count: 20 });
         });
 
-      (db.all as jest.Mock).mockImplementationOnce(
-        (query, params, callback) => {
-          callback(null, []);
-        }
-      );
+      (db.all as Mock).mockImplementationOnce((query, params, callback) => {
+        callback(null, []);
+      });
 
       await getTransactions(mockRequest as Request, mockResponse as Response);
 
@@ -353,11 +342,9 @@ describe("Transaction Controller", () => {
     });
 
     it("should return 404 for non-existent account", async () => {
-      (db.get as jest.Mock).mockImplementationOnce(
-        (query, params, callback) => {
-          callback(null, null);
-        }
-      );
+      (db.get as Mock).mockImplementationOnce((query, params, callback) => {
+        callback(null, null);
+      });
 
       await getTransactions(mockRequest as Request, mockResponse as Response);
 
@@ -368,11 +355,9 @@ describe("Transaction Controller", () => {
     });
 
     it("should handle database errors", async () => {
-      (db.get as jest.Mock).mockImplementationOnce(
-        (query, params, callback) => {
-          callback(new Error("Database error"), null);
-        }
-      );
+      (db.get as Mock).mockImplementationOnce((query, params, callback) => {
+        callback(new Error("Database error"), null);
+      });
 
       await getTransactions(mockRequest as Request, mockResponse as Response);
 
